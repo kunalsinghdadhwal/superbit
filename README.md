@@ -2,9 +2,9 @@
 
 A lightweight, in-memory vector index for approximate nearest-neighbor (ANN) search using Locality-Sensitive Hashing.
 
-[![Crates.io](https://img.shields.io/crates/v/superbit.svg)](https://crates.io/crates/superbit)
-[![docs.rs](https://docs.rs/superbit/badge.svg)](https://docs.rs/superbit)
-[![License](https://img.shields.io/crates/l/superbit.svg)](https://github.com/kunalsinghdadhwal/superbit)
+[![Crates.io](https://img.shields.io/crates/v/superbit_lsh.svg)](https://crates.io/crates/superbit_lsh)
+[![docs.rs](https://docs.rs/superbit_lsh/badge.svg)](https://docs.rs/superbit_lsh)
+[![License](https://img.shields.io/crates/l/superbit_lsh.svg)](https://github.com/kunalsinghdadhwal/superbit)
 
 ## Overview
 
@@ -48,7 +48,7 @@ Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-superbit = "0.1"
+superbit_lsh = "0.1"
 ```
 
 Build an index, insert vectors, and query:
@@ -97,7 +97,7 @@ Enable features in your `Cargo.toml`:
 
 ```toml
 [dependencies]
-superbit = { version = "0.1", features = ["full"] }
+superbit_lsh = { version = "0.1", features = ["full"] }
 ```
 
 ## Configuration Guide
