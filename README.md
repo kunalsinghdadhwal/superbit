@@ -4,7 +4,7 @@ A lightweight, in-memory vector index for approximate nearest-neighbor (ANN) sea
 
 [![Crates.io](https://img.shields.io/crates/v/superbit.svg)](https://crates.io/crates/superbit)
 [![docs.rs](https://docs.rs/superbit/badge.svg)](https://docs.rs/superbit)
-[![License](https://img.shields.io/crates/l/superbit.svg)](https://github.com/user/superbit)
+[![License](https://img.shields.io/crates/l/superbit.svg)](https://github.com/kunalsinghdadhwal/superbit)
 
 ## Overview
 

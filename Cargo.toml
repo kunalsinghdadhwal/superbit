@@ -2,7 +2,13 @@
 name = "superbit"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.70"
+authors = ["Kunal Singh Dadhwal <kunalsinghdadhwal@gmail.com>"]
 description = "A lightweight, in-memory vector index for approximate nearest neighbors using Locality-Sensitive Hashing"
+documentation = "https://docs.rs/superbit"
+homepage = "https://github.com/kunalsinghdadhwal/superbit"
+repository = "https://github.com/kunalsinghdadhwal/superbit"
+readme = "README.md"
 license = "MIT OR Apache-2.0"
 keywords = ["lsh", "ann", "vector-search", "nearest-neighbors", "embeddings"]
 categories = ["algorithms", "data-structures", "science"]
