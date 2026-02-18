@@ -117,6 +117,17 @@ pub struct LshIndex {
     pub(crate) metrics: Option<Arc<MetricsCollector>>,
 }
 
+impl std::fmt::Debug for LshIndex {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let inner = self.inner.read();
+        f.debug_struct("LshIndex")
+            .field("num_vectors", &inner.vectors.len())
+            .field("config", &inner.config)
+            .field("has_metrics", &self.metrics.is_some())
+            .finish()
+    }
+}
+
 impl LshIndex {
     /// Start building an index with the builder pattern.
     pub fn builder() -> LshIndexBuilder {
