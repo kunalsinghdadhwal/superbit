@@ -321,7 +321,21 @@ impl LshIndex {
         }
 
         // Collect candidate IDs across all tables.
-        let mut candidates: HashMap<usize, ()> = HashMap::new();
+        // Use a bitvec for O(1) dedup when IDs are dense sequential integers,
+        // falling back to HashMap when IDs are sparse (next_id > 4 * num_vectors).
+        let num_vectors = inner.vectors.len();
+        let use_bitvec = inner.next_id <= num_vectors.saturating_mul(4);
+        let mut seen = if use_bitvec {
+            vec![false; inner.next_id]
+        } else {
+            Vec::new()
+        };
+        let mut candidate_set: HashMap<usize, ()> = if use_bitvec {
+            HashMap::new() // unused, but need a binding
+        } else {
+            HashMap::with_capacity(num_vectors / 4)
+        };
+        let mut candidate_ids: Vec<usize> = Vec::new();
 
         for (i, hasher) in inner.hashers.iter().enumerate() {
             let (hash, margins) = hasher.hash_vector(&query_vec.view());
@@ -338,7 +352,14 @@ impl LshIndex {
                         m.record_bucket_hit();
                     }
                     for &id in bucket {
-                        candidates.insert(id, ());
+                        if use_bitvec {
+                            if !seen[id] {
+                                seen[id] = true;
+                                candidate_ids.push(id);
+                            }
+                        } else if candidate_set.insert(id, ()).is_none() {
+                            candidate_ids.push(id);
+                        }
                     }
                 } else if let Some(ref m) = self.metrics {
                     m.record_bucket_miss();
@@ -347,14 +368,26 @@ impl LshIndex {
         }
 
         // Exact re-ranking of candidates.
-        let mut results: Vec<QueryResult> = candidates
-            .keys()
+        // When vectors are pre-normalized (cosine mode), use the fast 1-dot path
+        // which avoids two redundant norm computations per candidate.
+        let use_fast_cosine = inner.config.normalize_vectors
+            && inner.config.distance_metric == distance::DistanceMetric::Cosine;
+        let query_view = query_vec.view();
+
+        let num_candidates = candidate_ids.len();
+
+        let mut results: Vec<QueryResult> = candidate_ids
+            .iter()
             .filter_map(|&id| {
                 inner.vectors.get(&id).map(|stored| {
-                    let dist = inner
-                        .config
-                        .distance_metric
-                        .compute(&query_vec.view(), &stored.view());
+                    let dist = if use_fast_cosine {
+                        distance::cosine_distance_normalized(&query_view, &stored.view())
+                    } else {
+                        inner
+                            .config
+                            .distance_metric
+                            .compute(&query_view, &stored.view())
+                    };
                     QueryResult { id, distance: dist }
                 })
             })
@@ -369,7 +402,7 @@ impl LshIndex {
 
         if let Some(ref m) = self.metrics {
             if let Some(t) = timer {
-                m.record_query(candidates.len() as u64, t.elapsed_ns());
+                m.record_query(num_candidates as u64, t.elapsed_ns());
             }
         }
 

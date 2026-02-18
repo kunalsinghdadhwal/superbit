@@ -38,16 +38,25 @@ pub fn cosine_distance(a: &ArrayView1<f32>, b: &ArrayView1<f32>) -> f32 {
     1.0 - (dot / denom)
 }
 
+/// Fast cosine distance for pre-normalized vectors: just 1 - dot(a, b).
+///
+/// Both `a` and `b` must already have unit L2 norm. Skips the two extra
+/// dot products that `cosine_distance` needs for norm computation.
+#[inline]
+pub fn cosine_distance_normalized(a: &ArrayView1<f32>, b: &ArrayView1<f32>) -> f32 {
+    1.0 - a.dot(b)
+}
+
 /// Euclidean (L2) distance between two vectors.
+///
+/// Uses the identity ||a - b||^2 = ||a||^2 + ||b||^2 - 2*dot(a, b)
+/// to leverage ndarray's optimized dot product instead of a scalar loop.
 pub fn euclidean_distance(a: &ArrayView1<f32>, b: &ArrayView1<f32>) -> f32 {
-    a.iter()
-        .zip(b.iter())
-        .map(|(x, y)| {
-            let d = x - y;
-            d * d
-        })
-        .sum::<f32>()
-        .sqrt()
+    let norm_a_sq = a.dot(a);
+    let norm_b_sq = b.dot(b);
+    let dot_ab = a.dot(b);
+    // Clamp to avoid sqrt of small negative due to floating-point error.
+    (norm_a_sq + norm_b_sq - 2.0 * dot_ab).max(0.0).sqrt()
 }
 
 /// Dot product of two vectors.

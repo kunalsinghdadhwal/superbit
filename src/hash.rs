@@ -1,4 +1,4 @@
-use ndarray::Array1;
+use ndarray::Array2;
 use rand::Rng;
 use rand_distr::StandardNormal;
 
@@ -7,27 +7,30 @@ use rand_distr::StandardNormal;
 /// Uses sign-of-random-projection (SimHash / hyperplane LSH) to map vectors
 /// to bit signatures. Each bit corresponds to the sign of the dot product
 /// with a random Gaussian vector.
+///
+/// Projections are stored as a (num_hashes x dim) matrix so that all dot
+/// products can be computed in a single matrix-vector multiply.
 #[derive(Debug, Clone)]
 #[cfg_attr(
     feature = "persistence",
     derive(serde::Serialize, serde::Deserialize)
 )]
 pub struct RandomProjectionHasher {
-    projections: Vec<Array1<f32>>,
+    /// (num_hashes x dim) matrix -- each row is one projection vector.
+    projection_matrix: Array2<f32>,
     num_hashes: usize,
 }
 
 impl RandomProjectionHasher {
     /// Create a new hasher with `num_hashes` random projection vectors of dimension `dim`.
     pub fn new(dim: usize, num_hashes: usize, rng: &mut impl Rng) -> Self {
-        let projections = (0..num_hashes)
-            .map(|_| {
-                let v: Vec<f32> = (0..dim).map(|_| rng.sample(StandardNormal)).collect();
-                Array1::from_vec(v)
-            })
+        let data: Vec<f32> = (0..num_hashes * dim)
+            .map(|_| rng.sample(StandardNormal))
             .collect();
+        let projection_matrix =
+            Array2::from_shape_vec((num_hashes, dim), data).expect("shape mismatch");
         Self {
-            projections,
+            projection_matrix,
             num_hashes,
         }
     }
@@ -37,11 +40,13 @@ impl RandomProjectionHasher {
     /// Returns `(hash_key, margins)` where margins is a vec of `(bit_index, |dot_product|)`
     /// sorted by ascending margin (most uncertain bits first).
     pub fn hash_vector(&self, vector: &ndarray::ArrayView1<f32>) -> (u64, Vec<(usize, f32)>) {
+        // Single matrix-vector multiply: dots = projection_matrix * vector
+        let dots = self.projection_matrix.dot(vector);
+
         let mut hash: u64 = 0;
         let mut margins: Vec<(usize, f32)> = Vec::with_capacity(self.num_hashes);
 
-        for (i, proj) in self.projections.iter().enumerate() {
-            let dot = vector.dot(proj);
+        for (i, &dot) in dots.iter().enumerate() {
             if dot >= 0.0 {
                 hash |= 1u64 << i;
             }
@@ -54,9 +59,10 @@ impl RandomProjectionHasher {
 
     /// Compute just the hash key (fast path, no margin data).
     pub fn hash_vector_fast(&self, vector: &ndarray::ArrayView1<f32>) -> u64 {
+        let dots = self.projection_matrix.dot(vector);
         let mut hash: u64 = 0;
-        for (i, proj) in self.projections.iter().enumerate() {
-            if vector.dot(proj) >= 0.0 {
+        for (i, &dot) in dots.iter().enumerate() {
+            if dot >= 0.0 {
                 hash |= 1u64 << i;
             }
         }
