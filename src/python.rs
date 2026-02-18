@@ -106,7 +106,7 @@ impl PyLshIndex {
 
 /// Register the module with Python.
 #[pymodule]
-fn lsh_vec_index(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn superbit(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyLshIndex>()?;
     Ok(())
 }

@@ -1,5 +1,5 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use lsh_vec_index::{DistanceMetric, LshIndex};
+use superbit::{DistanceMetric, LshIndex};
 use ndarray::Array1;
 use rand::rngs::StdRng;
 use rand::SeedableRng;

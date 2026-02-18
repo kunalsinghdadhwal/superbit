@@ -1,5 +1,5 @@
 [package]
-name = "lsh_vec_index"
+name = "superbit"
 version = "0.1.0"
 edition = "2021"
 description = "A lightweight, in-memory vector index for approximate nearest neighbors using Locality-Sensitive Hashing"
@@ -8,7 +8,7 @@ keywords = ["lsh", "ann", "vector-search", "nearest-neighbors", "embeddings"]
 categories = ["algorithms", "data-structures", "science"]
 
 [lib]
-name = "lsh_vec_index"
+name = "superbit"
 
 [dependencies]
 hashbrown = "0.15"

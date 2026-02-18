@@ -1,4 +1,4 @@
-//! Basic usage of `lsh_vec_index`.
+//! Basic usage of `superbit`.
 //!
 //! Demonstrates the builder pattern, inserting random vectors, querying,
 //! inspecting stats and metrics, auto-tuning, removal, and clearing.
@@ -6,7 +6,7 @@
 //! Run with:
 //!   cargo run --example basic_usage
 
-use lsh_vec_index::*;
+use superbit::*;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 use rand_distr::{Distribution, Normal};

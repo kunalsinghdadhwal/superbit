@@ -1,4 +1,4 @@
-//! # lsh_vec_index
+//! # superbit
 //!
 //! A lightweight, in-memory vector index for approximate nearest-neighbor (ANN)
 //! search using Locality-Sensitive Hashing (LSH).
@@ -10,7 +10,7 @@
 //! ## Quick start
 //!
 //! ```rust
-//! use lsh_vec_index::{LshIndex, DistanceMetric};
+//! use superbit::{LshIndex, DistanceMetric};
 //!
 //! let index = LshIndex::builder()
 //!     .dim(128)

@@ -6,7 +6,7 @@
 //! Run with:
 //!   cargo run --example benchmark_comparison --release
 
-use lsh_vec_index::*;
+use superbit::*;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 use rand_distr::{Distribution, Normal};

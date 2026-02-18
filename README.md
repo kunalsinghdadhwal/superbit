@@ -1,14 +1,14 @@
-# lsh_vec_index
+# superbit
 
 A lightweight, in-memory vector index for approximate nearest-neighbor (ANN) search using Locality-Sensitive Hashing.
 
-[![Crates.io](https://img.shields.io/crates/v/lsh_vec_index.svg)](https://crates.io/crates/lsh_vec_index)
-[![docs.rs](https://docs.rs/lsh_vec_index/badge.svg)](https://docs.rs/lsh_vec_index)
-[![License](https://img.shields.io/crates/l/lsh_vec_index.svg)](https://github.com/user/lsh_vec_index)
+[![Crates.io](https://img.shields.io/crates/v/superbit.svg)](https://crates.io/crates/superbit)
+[![docs.rs](https://docs.rs/superbit/badge.svg)](https://docs.rs/superbit)
+[![License](https://img.shields.io/crates/l/superbit.svg)](https://github.com/user/superbit)
 
 ## Overview
 
-`lsh_vec_index` provides fast approximate nearest-neighbor search over
+`superbit` provides fast approximate nearest-neighbor search over
 high-dimensional vectors without the operational overhead of a full vector
 database. It implements **random hyperplane LSH** (SimHash), a
 locality-sensitive hashing scheme that hashes similar vectors into the same
@@ -48,15 +48,15 @@ Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-lsh_vec_index = "0.1"
+superbit = "0.1"
 ```
 
 Build an index, insert vectors, and query:
 
 ```rust
-use lsh_vec_index::{LshIndex, DistanceMetric};
+use superbit::{LshIndex, DistanceMetric};
 
-fn main() -> lsh_vec_index::Result<()> {
+fn main() -> superbit::Result<()> {
     // Build a 128-dimensional index with cosine similarity.
     let index = LshIndex::builder()
         .dim(128)
@@ -97,7 +97,7 @@ Enable features in your `Cargo.toml`:
 
 ```toml
 [dependencies]
-lsh_vec_index = { version = "0.1", features = ["full"] }
+superbit = { version = "0.1", features = ["full"] }
 ```
 
 ## Configuration Guide
@@ -126,7 +126,7 @@ Use `suggest_params` to get a starting configuration based on your dataset size
 and target recall:
 
 ```rust
-use lsh_vec_index::{suggest_params, DistanceMetric};
+use superbit::{suggest_params, DistanceMetric};
 
 let params = suggest_params(
     0.90,                    // target recall
@@ -143,7 +143,7 @@ You can also estimate the recall of a specific configuration without building
 an index:
 
 ```rust
-use lsh_vec_index::{estimate_recall, DistanceMetric};
+use superbit::{estimate_recall, DistanceMetric};
 
 let recall = estimate_recall(16, 8, 2, DistanceMetric::Cosine);
 println!("Estimated recall: {:.2}", recall);
@@ -173,12 +173,12 @@ monitor query latency, candidate counts, and bucket hit rates in production.
 
 | Crate             | Algorithm       | Notes                                          |
 |-------------------|-----------------|-------------------------------------------------|
-| **lsh_vec_index** | Random hyperplane LSH | Lightweight, pure Rust, no C/C++ deps. Good for prototyping and moderate-scale workloads. |
+| **superbit** | Random hyperplane LSH | Lightweight, pure Rust, no C/C++ deps. Good for prototyping and moderate-scale workloads. |
 | usearch           | HNSW            | High performance, C++ core with Rust bindings. Better for large-scale production. |
 | hora              | HNSW / IVF-PQ   | Pure Rust, multiple algorithms. More complex API. |
 | hnsw_rs           | HNSW            | Pure Rust HNSW implementation.                 |
 
-`lsh_vec_index` is intentionally simple: a single algorithm, a small API
+`superbit` is intentionally simple: a single algorithm, a small API
 surface, and no native dependencies. It is a good fit for prototyping,
 moderate-scale applications, and situations where you want to understand and
 control the indexing behavior. For very large datasets (millions of vectors) or
