@@ -67,13 +67,6 @@ graph TD
     A -.-> P
     A -.-> S
     A -.-> PY
-
-    style A fill:#4a9eff,color:#fff
-    style B fill:#ff9f43,color:#fff
-    style M fill:#a29bfe,color:#fff
-    style V fill:#55efc4,color:#333
-    style T fill:#55efc4,color:#333
-    style H fill:#fd79a8,color:#fff
 ```
 
 ### Query Flow
@@ -97,13 +90,6 @@ flowchart LR
 
     UNION --> RANK[Exact Re-rank<br/>compute true distance]
     RANK --> TOPK[Return Top-K]
-
-    style Q fill:#4a9eff,color:#fff
-    style HASH fill:#fd79a8,color:#fff
-    style PROBE fill:#fdcb6e,color:#333
-    style UNION fill:#55efc4,color:#333
-    style RANK fill:#a29bfe,color:#fff
-    style TOPK fill:#00b894,color:#fff
 ```
 
 ### Insert Flow
@@ -120,12 +106,6 @@ flowchart LR
 
     STORE[Compute L hashes] --> BUCK[Push id into<br/>L hash buckets]
     BUCK --> VEC[Store vector in<br/>central HashMap]
-
-    style I fill:#4a9eff,color:#fff
-    style REM fill:#e17055,color:#fff
-    style STORE fill:#fd79a8,color:#fff
-    style BUCK fill:#55efc4,color:#333
-    style VEC fill:#00b894,color:#fff
 ```
 
 ## Quick Start
