@@ -32,7 +32,7 @@ pub fn suggest_params(
 
     // Assume average angle of ~60 degrees between relevant (nearby) pairs.
     // P(sign match) = 1 - 60/180 = 0.667 for cosine/angular LSH.
-    let p_collision = match metric {
+    let p_collision: f64 = match metric {
         DistanceMetric::Cosine | DistanceMetric::DotProduct => 0.667,
         DistanceMetric::Euclidean => 0.6,
     };
@@ -92,7 +92,7 @@ pub fn estimate_recall(
     num_probes: usize,
     metric: DistanceMetric,
 ) -> f64 {
-    let p_collision = match metric {
+    let p_collision: f64 = match metric {
         DistanceMetric::Cosine | DistanceMetric::DotProduct => 0.667,
         DistanceMetric::Euclidean => 0.6,
     };
