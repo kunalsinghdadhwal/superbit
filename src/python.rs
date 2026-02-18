@@ -30,7 +30,7 @@ impl PyLshIndex {
     ///     metric: One of "cosine", "euclidean", "dot".
     ///     seed: Optional RNG seed for reproducibility.
     #[new]
-    #[pyo3(signature = (dim=768, num_hashes=16, num_tables=8, num_probes=2, metric="cosine", seed=None))]
+    #[pyo3(signature = (dim=768, num_hashes=8, num_tables=16, num_probes=3, metric="cosine", seed=None))]
     fn new(
         dim: usize,
         num_hashes: usize,

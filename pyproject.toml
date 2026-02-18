@@ -1,0 +1,36 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "superbit-lsh"
+version = "0.1.0"
+description = "A lightweight, in-memory vector index for approximate nearest neighbors using Locality-Sensitive Hashing"
+readme = "README.md"
+license = { text = "MIT OR Apache-2.0" }
+authors = [{ name = "Kunal Singh Dadhwal", email = "kunalsinghdadhwal@gmail.com" }]
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+keywords = ["lsh", "ann", "vector-search", "nearest-neighbors", "embeddings"]
+
+[project.urls]
+Homepage = "https://github.com/kunalsinghdadhwal/superbit"
+Repository = "https://github.com/kunalsinghdadhwal/superbit"
+Documentation = "https://docs.rs/superbit_lsh"
+
+[tool.maturin]
+features = ["python"]
