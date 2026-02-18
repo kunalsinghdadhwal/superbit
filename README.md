@@ -42,6 +42,92 @@ balance between speed and recall.
   - `persistence` -- save/load indexes to disk with serde + bincode (or JSON)
   - `python` -- Python bindings via PyO3
 
+## Architecture
+
+### Module Structure
+
+```mermaid
+graph TD
+    A[<b>LshIndex</b><br/>Public API] --> B[RwLock&lt;IndexInner&gt;<br/>Thread-safe wrapper]
+    A --> M[MetricsCollector<br/>Atomic counters]
+
+    B --> V[vectors<br/>HashMap&lt;id, Array1&lt;f32&gt;&gt;]
+    B --> T[tables<br/>Vec&lt;HashMap&lt;u64, Vec&lt;id&gt;&gt;&gt;]
+    B --> H[hashers<br/>Vec&lt;RandomProjectionHasher&gt;]
+    B --> C[IndexConfig]
+
+    H --> |"sign(dot(v, proj))"| T
+
+    subgraph Optional Features
+        P[parallel<br/>rayon batch ops]
+        S[persistence<br/>serde + bincode/JSON]
+        PY[python<br/>PyO3 bindings]
+    end
+
+    A -.-> P
+    A -.-> S
+    A -.-> PY
+
+    style A fill:#4a9eff,color:#fff
+    style B fill:#ff9f43,color:#fff
+    style M fill:#a29bfe,color:#fff
+    style V fill:#55efc4,color:#333
+    style T fill:#55efc4,color:#333
+    style H fill:#fd79a8,color:#fff
+```
+
+### Query Flow
+
+```mermaid
+flowchart LR
+    Q[Query Vector] --> N{Normalize?}
+    N -->|Cosine| NORM[L2 Normalize]
+    N -->|Other| HASH
+    NORM --> HASH
+
+    HASH[Hash with L Hashers] --> PROBE[Multi-probe:<br/>flip uncertain bits]
+
+    PROBE --> T1[Table 1<br/>base + probes]
+    PROBE --> T2[Table 2<br/>base + probes]
+    PROBE --> TL[Table L<br/>base + probes]
+
+    T1 --> UNION[Candidate Union<br/>deduplicate IDs]
+    T2 --> UNION
+    TL --> UNION
+
+    UNION --> RANK[Exact Re-rank<br/>compute true distance]
+    RANK --> TOPK[Return Top-K]
+
+    style Q fill:#4a9eff,color:#fff
+    style HASH fill:#fd79a8,color:#fff
+    style PROBE fill:#fdcb6e,color:#333
+    style UNION fill:#55efc4,color:#333
+    style RANK fill:#a29bfe,color:#fff
+    style TOPK fill:#00b894,color:#fff
+```
+
+### Insert Flow
+
+```mermaid
+flowchart LR
+    I[Insert: id, vector] --> DUP{ID exists?}
+    DUP -->|Yes| REM[Remove old<br/>hash entries]
+    DUP -->|No| NORM
+    REM --> NORM{Normalize?}
+    NORM -->|Cosine| DO_NORM[L2 Normalize]
+    NORM -->|Other| STORE
+    DO_NORM --> STORE
+
+    STORE[Compute L hashes] --> BUCK[Push id into<br/>L hash buckets]
+    BUCK --> VEC[Store vector in<br/>central HashMap]
+
+    style I fill:#4a9eff,color:#fff
+    style REM fill:#e17055,color:#fff
+    style STORE fill:#fd79a8,color:#fff
+    style BUCK fill:#55efc4,color:#333
+    style VEC fill:#00b894,color:#fff
+```
+
 ## Quick Start
 
 Add the crate to your `Cargo.toml`:
