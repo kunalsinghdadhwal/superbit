@@ -1,2 +1,5 @@
 /target
 /.venv
+perf.data
+perf.data.old
+flamegraph*.svg
