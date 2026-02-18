@@ -21,8 +21,9 @@ fn main() {
     println!("=== Step 1: Build the index ===");
     let index = LshIndex::builder()
         .dim(DIM)
-        .num_hashes(16)
-        .num_tables(8)
+        .num_hashes(8)
+        .num_tables(16)
+        .num_probes(3)
         .distance_metric(DistanceMetric::Cosine)
         .seed(42)
         .enable_metrics()
@@ -30,7 +31,7 @@ fn main() {
         .expect("failed to build index");
 
     println!(
-        "Created index: dim={}, hashes=16, tables=8, metric=Cosine, seed=42, metrics=on\n",
+        "Created index: dim={}, hashes=8, tables=16, probes=3, metric=Cosine, seed=42, metrics=on\n",
         DIM
     );
 
@@ -114,7 +115,7 @@ fn main() {
     println!("  Estimated recall:         {:.4}", suggested.estimated_recall);
 
     // Also show the estimate_recall utility for our current parameters.
-    let current_recall = estimate_recall(16, 8, 2, DistanceMetric::Cosine);
+    let current_recall = estimate_recall(8, 16, 3, DistanceMetric::Cosine);
     println!(
         "  Current config estimated recall: {:.4}",
         current_recall

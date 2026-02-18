@@ -60,9 +60,9 @@ fn main() -> lsh_vec_index::Result<()> {
     // Build a 128-dimensional index with cosine similarity.
     let index = LshIndex::builder()
         .dim(128)
-        .num_hashes(16)
-        .num_tables(8)
-        .num_probes(2)
+        .num_hashes(8)
+        .num_tables(16)
+        .num_probes(3)
         .distance_metric(DistanceMetric::Cosine)
         .seed(42)
         .build()?;
@@ -112,7 +112,7 @@ The three main knobs that control the speed/recall/memory trade-off are:
 
 **Rules of thumb:**
 
-- Start with the defaults (`num_hashes=16`, `num_tables=8`, `num_probes=2`)
+- Start with the defaults (`num_hashes=8`, `num_tables=16`, `num_probes=3`)
   and measure recall on a held-out set.
 - If recall is too low, increase `num_tables` or `num_probes` first.
 - If queries are too slow (too many candidates), increase `num_hashes` to make

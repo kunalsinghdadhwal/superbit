@@ -76,12 +76,13 @@ fn main() {
     // ---------------------------------------------------------------
     // 2. Build the LSH index.
     // ---------------------------------------------------------------
-    println!("[2/5] Building LSH index (16 hashes, 12 tables, cosine)...");
+    println!("[2/5] Building LSH index (8 hashes, 16 tables, 3 probes, cosine)...");
     let build_start = Instant::now();
     let index = LshIndex::builder()
         .dim(DIM)
-        .num_hashes(16)
-        .num_tables(12)
+        .num_hashes(8)
+        .num_tables(16)
+        .num_probes(3)
         .distance_metric(DistanceMetric::Cosine)
         .seed(42)
         .build()

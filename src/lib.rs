@@ -14,8 +14,8 @@
 //!
 //! let index = LshIndex::builder()
 //!     .dim(128)
-//!     .num_hashes(16)
-//!     .num_tables(8)
+//!     .num_hashes(8)
+//!     .num_tables(16)
 //!     .distance_metric(DistanceMetric::Cosine)
 //!     .seed(42)
 //!     .build()

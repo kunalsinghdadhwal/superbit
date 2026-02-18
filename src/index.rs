@@ -38,9 +38,9 @@ impl Default for IndexConfig {
     fn default() -> Self {
         Self {
             dim: 768,
-            num_hashes: 16,
-            num_tables: 8,
-            num_probes: 2,
+            num_hashes: 8,
+            num_tables: 16,
+            num_probes: 3,
             distance_metric: DistanceMetric::Cosine,
             normalize_vectors: true,
             seed: None,
