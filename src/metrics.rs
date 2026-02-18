@@ -49,7 +49,7 @@ impl MetricsCollector {
             query_count,
             insert_count: self.insert_count.load(Ordering::Relaxed),
             avg_query_time_us: if query_count > 0 {
-                (total_query_time_ns / query_count) as f64 / 1000.0
+                total_query_time_ns as f64 / query_count as f64 / 1000.0
             } else {
                 0.0
             },

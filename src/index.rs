@@ -246,9 +246,42 @@ impl LshIndex {
     }
 
     /// Insert a vector and receive an auto-assigned ID.
+    ///
+    /// The ID is assigned atomically under the write lock, so concurrent
+    /// calls will never produce duplicate IDs.
     pub fn insert_auto(&self, vector: &[f32]) -> Result<usize> {
-        let id = self.inner.read().next_id;
-        self.insert(id, vector)?;
+        let mut inner = self.inner.write();
+
+        if vector.len() != inner.config.dim {
+            return Err(LshError::DimensionMismatch {
+                expected: inner.config.dim,
+                got: vector.len(),
+            });
+        }
+
+        let id = inner.next_id;
+
+        let mut arr = Array1::from_vec(vector.to_vec());
+        if inner.config.normalize_vectors {
+            distance::normalize(&mut arr);
+        }
+
+        let new_hashes: Vec<u64> = inner
+            .hashers
+            .iter()
+            .map(|h| h.hash_vector_fast(&arr.view()))
+            .collect();
+        for (i, hash) in new_hashes.into_iter().enumerate() {
+            inner.tables[i].entry(hash).or_default().push(id);
+        }
+
+        inner.vectors.insert(id, arr);
+        inner.next_id = id + 1;
+
+        if let Some(ref m) = self.metrics {
+            m.record_insert();
+        }
+
         Ok(id)
     }
 
@@ -506,6 +539,23 @@ impl LshIndex {
         // Sequential: write to shared state.
         let mut inner = self.inner.write();
         for (id, arr, hashes) in prepared {
+            // If the id already exists, remove old hashes first (same as insert).
+            if let Some(old_vec) = inner.vectors.get(&id) {
+                let old_vec = old_vec.clone();
+                let old_hashes: Vec<u64> = hashers
+                    .iter()
+                    .map(|h| h.hash_vector_fast(&old_vec.view()))
+                    .collect();
+                for (i, old_hash) in old_hashes.into_iter().enumerate() {
+                    if let Some(bucket) = inner.tables[i].get_mut(&old_hash) {
+                        bucket.retain(|&x| x != id);
+                        if bucket.is_empty() {
+                            inner.tables[i].remove(&old_hash);
+                        }
+                    }
+                }
+            }
+
             for (i, hash) in hashes.into_iter().enumerate() {
                 inner.tables[i].entry(hash).or_default().push(id);
             }
