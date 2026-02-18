@@ -90,7 +90,7 @@ fn test_dimension_mismatch_on_insert() {
 #[test]
 fn test_dimension_mismatch_on_query() {
     let index = make_index(32, 42);
-    index.insert(0, &vec![1.0; 32]).unwrap();
+    index.insert(0, &[1.0; 32]).unwrap();
     let wrong = vec![1.0_f32; 16];
     let err = index.query(&wrong, 5).unwrap_err();
     assert!(
@@ -106,7 +106,7 @@ fn test_dimension_mismatch_on_query() {
 #[test]
 fn test_empty_index_query() {
     let index = make_index(32, 42);
-    let results = index.query(&vec![1.0; 32], 10).unwrap();
+    let results = index.query(&[1.0; 32], 10).unwrap();
     assert!(results.is_empty());
 }
 
@@ -533,7 +533,7 @@ fn test_metrics_disabled_by_default() {
 fn test_clear() {
     let index = make_index(8, 42);
     for i in 0..10 {
-        index.insert(i, &vec![i as f32; 8]).unwrap();
+        index.insert(i, &[i as f32; 8]).unwrap();
     }
     assert_eq!(index.len(), 10);
 
@@ -542,11 +542,11 @@ fn test_clear() {
     assert!(index.is_empty());
 
     // After clear, queries return nothing.
-    let results = index.query(&vec![1.0; 8], 5).unwrap();
+    let results = index.query(&[1.0; 8], 5).unwrap();
     assert!(results.is_empty());
 
     // insert_auto should start from 0 again.
-    let id = index.insert_auto(&vec![1.0; 8]).unwrap();
+    let id = index.insert_auto(&[1.0; 8]).unwrap();
     assert_eq!(id, 0);
 }
 
@@ -608,7 +608,7 @@ fn test_estimate_recall_increases_with_probes() {
 #[test]
 fn test_estimate_recall_bounded() {
     let r = estimate_recall(16, 50, 10, DistanceMetric::Cosine);
-    assert!(r >= 0.0 && r <= 1.0, "recall should be in [0, 1], got {r}");
+    assert!((0.0..=1.0).contains(&r), "recall should be in [0, 1], got {r}");
 }
 
 // ---------------------------------------------------------------------------
@@ -742,10 +742,10 @@ fn test_seeded_determinism() {
 #[test]
 fn test_query_k_larger_than_index() {
     let index = make_index(8, 42);
-    index.insert(0, &vec![1.0; 8]).unwrap();
-    index.insert(1, &vec![2.0; 8]).unwrap();
+    index.insert(0, &[1.0; 8]).unwrap();
+    index.insert(1, &[2.0; 8]).unwrap();
 
-    let results = index.query(&vec![1.0; 8], 100).unwrap();
+    let results = index.query(&[1.0; 8], 100).unwrap();
     assert!(results.len() <= 2, "cannot return more results than stored vectors");
 }
 
@@ -755,7 +755,7 @@ fn test_is_empty_and_len() {
     assert!(index.is_empty());
     assert_eq!(index.len(), 0);
 
-    index.insert(0, &vec![1.0; 8]).unwrap();
+    index.insert(0, &[1.0; 8]).unwrap();
     assert!(!index.is_empty());
     assert_eq!(index.len(), 1);
 }
@@ -803,9 +803,9 @@ fn test_invalid_num_tables_zero() {
 fn test_insert_auto_after_manual_insert() {
     let index = make_index(8, 42);
     // Manual insert at id 5.
-    index.insert(5, &vec![1.0; 8]).unwrap();
+    index.insert(5, &[1.0; 8]).unwrap();
     // insert_auto should pick id >= 6.
-    let auto_id = index.insert_auto(&vec![2.0; 8]).unwrap();
+    let auto_id = index.insert_auto(&[2.0; 8]).unwrap();
     assert_eq!(auto_id, 6, "insert_auto should pick next_id after highest manual insert");
 }
 
@@ -840,8 +840,8 @@ fn test_metrics_reset() {
         .build()
         .unwrap();
 
-    index.insert(0, &vec![1.0; 8]).unwrap();
-    let _ = index.query(&vec![1.0; 8], 5).unwrap();
+    index.insert(0, &[1.0; 8]).unwrap();
+    let _ = index.query(&[1.0; 8], 5).unwrap();
 
     let m = index.metrics().unwrap();
     assert_eq!(m.insert_count, 1);
@@ -856,7 +856,7 @@ fn test_metrics_reset() {
 #[test]
 fn test_stats_display() {
     let index = make_index(8, 42);
-    index.insert(0, &vec![1.0; 8]).unwrap();
+    index.insert(0, &[1.0; 8]).unwrap();
     let stats = index.stats();
     let display = format!("{stats}");
     assert!(display.contains("vectors: 1"), "display should contain vector count");
@@ -873,8 +873,8 @@ fn test_boundary_num_hashes_1_and_64() {
         .seed(42)
         .build()
         .unwrap();
-    index.insert(0, &vec![1.0; 8]).unwrap();
-    let results = index.query(&vec![1.0; 8], 1).unwrap();
+    index.insert(0, &[1.0; 8]).unwrap();
+    let results = index.query(&[1.0; 8], 1).unwrap();
     assert!(!results.is_empty());
 
     // num_hashes = 64 should be valid.
@@ -885,7 +885,7 @@ fn test_boundary_num_hashes_1_and_64() {
         .seed(42)
         .build()
         .unwrap();
-    index64.insert(0, &vec![1.0; 8]).unwrap();
-    let results64 = index64.query(&vec![1.0; 8], 1).unwrap();
+    index64.insert(0, &[1.0; 8]).unwrap();
+    let results64 = index64.query(&[1.0; 8], 1).unwrap();
     assert!(!results64.is_empty());
 }
