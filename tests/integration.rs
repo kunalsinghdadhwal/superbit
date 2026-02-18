@@ -889,3 +889,88 @@ fn test_boundary_num_hashes_1_and_64() {
     let results64 = index64.query(&[1.0; 8], 1).unwrap();
     assert!(!results64.is_empty());
 }
+
+// ---------------------------------------------------------------------------
+// 21. Persistence round-trip (JSON and bincode)
+// ---------------------------------------------------------------------------
+
+#[cfg(feature = "persistence")]
+#[test]
+fn test_persistence_json_round_trip() {
+    let dir = std::env::temp_dir().join("lsh_test_json");
+    let path = dir.with_extension("json");
+
+    let index = LshIndex::builder()
+        .dim(16)
+        .num_hashes(4)
+        .num_tables(4)
+        .seed(42)
+        .build()
+        .unwrap();
+
+    let mut rng = StdRng::seed_from_u64(1);
+    let normal = Normal::new(0.0_f32, 1.0).unwrap();
+    for i in 0..100 {
+        let v: Vec<f32> = (0..16).map(|_| normal.sample(&mut rng)).collect();
+        index.insert(i, &v).unwrap();
+    }
+
+    // Save and reload.
+    index.save_json(&path).unwrap();
+    let loaded = LshIndex::load_json(&path).unwrap();
+
+    assert_eq!(loaded.len(), 100);
+    assert_eq!(loaded.config().dim, 16);
+    assert!(loaded.contains(0));
+    assert!(loaded.contains(99));
+
+    // Queries should produce the same results.
+    let q: Vec<f32> = (0..16).map(|_| normal.sample(&mut rng)).collect();
+    let original_results = index.query(&q, 5).unwrap();
+    let loaded_results = loaded.query(&q, 5).unwrap();
+    assert_eq!(original_results.len(), loaded_results.len());
+    for (a, b) in original_results.iter().zip(loaded_results.iter()) {
+        assert_eq!(a.id, b.id);
+        assert!((a.distance - b.distance).abs() < 1e-6);
+    }
+
+    // Clean up.
+    let _ = std::fs::remove_file(&path);
+}
+
+#[cfg(feature = "persistence")]
+#[test]
+fn test_persistence_bincode_round_trip() {
+    let dir = std::env::temp_dir().join("lsh_test_bincode");
+    let path = dir.with_extension("bin");
+
+    let index = LshIndex::builder()
+        .dim(16)
+        .num_hashes(4)
+        .num_tables(4)
+        .seed(42)
+        .build()
+        .unwrap();
+
+    let mut rng = StdRng::seed_from_u64(2);
+    let normal = Normal::new(0.0_f32, 1.0).unwrap();
+    for i in 0..50 {
+        let v: Vec<f32> = (0..16).map(|_| normal.sample(&mut rng)).collect();
+        index.insert(i, &v).unwrap();
+    }
+
+    // Save and reload.
+    index.save_bincode(&path).unwrap();
+    let loaded = LshIndex::load_bincode(&path).unwrap();
+
+    assert_eq!(loaded.len(), 50);
+    assert!(loaded.contains(0));
+
+    let q: Vec<f32> = (0..16).map(|_| normal.sample(&mut rng)).collect();
+    let original_results = index.query(&q, 3).unwrap();
+    let loaded_results = loaded.query(&q, 3).unwrap();
+    assert_eq!(original_results.len(), loaded_results.len());
+
+    // Clean up.
+    let _ = std::fs::remove_file(&path);
+}

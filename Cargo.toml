@@ -28,7 +28,7 @@ pyo3 = { version = "0.23", optional = true }
 [features]
 default = []
 parallel = ["dep:rayon"]
-persistence = ["dep:serde", "dep:serde_json", "dep:bincode", "hashbrown/serde", "ndarray/serde-1"]
+persistence = ["dep:serde", "dep:serde_json", "dep:bincode", "hashbrown/serde", "ndarray/serde"]
 python = ["dep:pyo3", "pyo3/extension-module"]
 full = ["parallel", "persistence"]
 
